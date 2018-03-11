@@ -79,18 +79,46 @@ class BismuthCompile
   end
 end
 
-return if ARGV.size < 1
-script_file = ARGV[0]
-load_path = ENV['BISMUTH_LOAD_PATH'].split ':'
-p [:script, script_file, :load_path, load_path]
-u = BismuthCompile.new script_file, load_path
+class Dotenv # pseudo Dotenv
+  def self.load
+    if File.exists? ".env"
+      File.open(".env"){|f|
+        f.each_line{|l|
+          l.strip!
+          next if l.empty?
+          next if l.start_with? "#"
+          name,value = l.split("=").map(&:strip)
+          if value.start_with?('"') and value.end_with?('"')
+            value = value[1..-2]
+          end
+          if value.start_with?("'") and value.end_with?("'")
+            value = value[1..-2]
+          end
+          ENV[name] = value unless ENV[name]
+        }
+      }
+    end
+  end
+end
+
+Dotenv.load
+
+file = ARGV[0]
+if file.to_s.empty? and File.exists? "main.rb"
+  file = "main.rb"
+end
+if file.to_s.empty?
+  STDERR.puts "file not specified"
+  exit 1
+end
+
+load_path = %w(./ src) + ENV['BISMUTH_LOAD_PATH'].split(':')
+u = BismuthCompile.new file, load_path
 u.run
 File.open("tmp/index.json","w"){|f| f.write u.index.to_json }
 puts "total #{u.line_count} lines united."
 `mrbc -g -o main.mrb tmp/out.rb 2> tmp/compile_error.log`
-if $? == 0
-  exit(0)
-else
+if $? != 0
   puts "compile failed."
   puts `cat tmp/compile_error.log | mrbindex.rb`
   exit 1
