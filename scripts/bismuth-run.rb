@@ -1,6 +1,13 @@
 #!/usr/bin/env mruby
 
 file = ARGV[0]
+if file.to_s.empty? and File.exist? "main.mrb"
+  file = "main.mrb"
+end
+unless file
+  STDERR.puts "file not specified."
+  exit 1
+end
 
 error_logs = []
 IO.pipe do |r, w|
