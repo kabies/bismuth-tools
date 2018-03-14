@@ -135,7 +135,9 @@ def build_macos_template
     unless File.exists? "Contents/Frameworks/#{f}.framework"
       `cp -R #{FRAMEWORKS_PATH}/#{f}.framework Contents/Frameworks`
     end
-    `install_name_tool -change @rpath/#{f}.framework/Versions/A/#{f} @executable_path/../Frameworks/#{f}.framework Contents/MacOS/mruby`
+    original_path = "@rpath/#{f}.framework/Versions/A/#{f}"
+    bundled_path = "@executable_path/../Frameworks/#{f}.framework/Versions/A/#{f}"
+    `install_name_tool -change #{original_path} #{bundled_path} Contents/MacOS/mruby`
   }
   puts `otool -L Contents/MacOS/mruby`
 end
