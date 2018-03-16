@@ -2,7 +2,7 @@
 
 REPOSITORY="https://github.com/mruby/mruby.git"
 DIR="build/linux"
-MRUBY_CONFIG="$PWD/source/build_config-1.4.0-linux.rb"
+MRUBY_CONFIG="$PWD/source/build_config-linux.rb"
 
 echo "MRUBY_CONFIG=$MRUBY_CONFIG"
 

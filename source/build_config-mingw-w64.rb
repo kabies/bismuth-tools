@@ -8,7 +8,7 @@ end
 #
 MRuby::CrossBuild.new("i686-w64-mingw32") do |conf|
   conf.host_target = "i686-w64-mingw32"
-  conf.build_target = "x86_64-apple-darwin"
+  conf.build_target = ENV['MACHTYPE']
   toolchain :gcc
   # bintest
   conf.enable_bintest = false

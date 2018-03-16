@@ -2,7 +2,7 @@
 
 REPOSITORY="https://github.com/mruby/mruby.git"
 DIR="build/macos"
-MRUBY_CONFIG="$PWD/source/build_config-1.4.0-macos.rb"
+MRUBY_CONFIG="$PWD/source/build_config-macos.rb"
 FRAMEWORKS_PATH="$HOME/Library/Frameworks"
 
 echo "MRUBY_CONFIG=$MRUBY_CONFIG"
