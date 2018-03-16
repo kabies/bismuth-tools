@@ -22,14 +22,14 @@ class Dotenv # pseudo Dotenv
   end
 end
 
-def build_w64
+def build_mingw_w64
   Dir.chdir ROOT_DIR
   target="i686-w64-mingw32"
   cc = "#{target}-gcc"
   windres = "#{target}-windres"
-  dir = "tmp/w64/game"
-  sysdir = "tmp/w64/game/system"
-  launcher_dir = "tmp/w64/launcher"
+  dir = "tmp/mingw-w64/game"
+  sysdir = "tmp/mingw-w64/game/system"
+  launcher_dir = "tmp/mingw-w64/launcher"
   `mkdir -p #{sysdir}`
   `mkdir -p #{launcher_dir}`
 
@@ -142,7 +142,7 @@ if $0==__FILE__
   case ARGV[0]
   when 'macos'
     build_macos
-  when 'w64'
-    build_w64
+  when 'mingw-w64'
+    build_mingw_w64
   end
 end
