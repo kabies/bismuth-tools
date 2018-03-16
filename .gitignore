@@ -1,0 +1,4 @@
+build/
+bin/mrbc
+bin/mirb
+bin/mruby
