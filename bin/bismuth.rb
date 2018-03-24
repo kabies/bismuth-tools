@@ -1,7 +1,8 @@
 #!/usr/bin/env mruby
 
+#
 # example:
-#    BISMUTH_LOAD_PATH=/path/to/bismuth bismuth-compile.rb test.rb
+#   BISMUTH_LOAD_PATH=/path/to/bismuth foo/bar.rb
 #
 
 class BismuthCompile
@@ -79,6 +80,35 @@ class BismuthCompile
   end
 end
 
+class Restorer
+  def initialize
+    tmp = []
+    JSON.parse(File.read("tmp/index.json")).reverse_each{|i|
+      filename = i[0]
+      start_line = i[1]
+      end_line = i[2]
+      tmp.fill filename, (start_line..end_line)
+    }
+
+    fileline = {}
+    @index = tmp.each.with_index.map{|filename,i|
+      fileline[filename] = fileline[filename].to_i + 1
+      "#{filename}:#{fileline[filename]}"
+    }
+  end
+
+  def restore(message)
+    m = message.chomp.split(":")
+    if m.size < 2
+      print "#{message}"
+    else
+      line = m[1].to_i - 1
+      text = m[2..-1].join(":")
+      puts "#{@index[line]}:#{text}"
+    end
+  end
+end
+
 class Dotenv # pseudo Dotenv
   def self.load
     if File.exists? ".env"
@@ -103,23 +133,68 @@ end
 
 Dotenv.load
 
+#
+# Choose file
+#
 file = ARGV[0]
-if file.to_s.empty? and File.exists? "main.rb"
-  file = "main.rb"
+if file.to_s.empty?
+  if File.exists? "main.mrb"
+    file = "main.mrb"
+  elsif File.exists? "main.rb"
+    file = "main.rb"
+  end
 end
+
 if file.to_s.empty?
   STDERR.puts "file not specified"
   exit 1
 end
 
-load_path = %w(./ src) + ENV['BISMUTH_LOAD_PATH'].split(':')
-u = BismuthCompile.new file, load_path
-u.run
-File.open("tmp/index.json","w"){|f| f.write u.index.to_json }
-puts "total #{u.line_count} lines united."
-`mrbc -g -o main.mrb tmp/out.rb 2> tmp/compile_error.log`
-if $? != 0
-  puts "compile failed."
-  puts `cat tmp/compile_error.log | mrbindex.rb`
-  exit 1
+puts "#{Time.now} start #{file}..."
+
+#
+# Compile
+#
+if file.end_with? ".rb"
+  puts "#{Time.now} compile #{file}"
+  load_path = %w(./ src) + ENV['BISMUTH_LOAD_PATH'].split(':')
+
+  u = BismuthCompile.new file, load_path
+  u.run
+  File.open("tmp/index.json","w"){|f| f.write u.index.to_json }
+  puts "total #{u.line_count} lines united."
+  `mrbc -g -o main.mrb tmp/out.rb 2> tmp/compile_error.log`
+
+  if $? != 0
+    puts "compile failed..."
+    r = Restorer.new
+    File.open("tmp/compile_error.log","r"){|f|
+      f.each_line{|l| r.restore l }
+    }
+    exit 1
+  end
+
+  file = "main.mrb"
 end
+
+#
+# Run
+#
+puts "#{Time.now} run #{file}"
+error_logs = []
+IO.pipe do |r, w|
+  IO.popen("mruby -b #{file}", "r", err: w) do |i|
+    loop do
+      STDOUT.write i.readline
+    end
+  rescue EOFError => e
+    # done
+  end
+  w.close
+  r.each_line{|l|
+    error_logs << l
+  }
+end
+
+r = Restorer.new
+error_logs.each{|l| r.restore l }
