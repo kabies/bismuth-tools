@@ -49,8 +49,10 @@ Bi::Window.make_window( 640, 480)
 Bi::RunLoop.instance.run_with_scene GameScene.new
 ```
 
-`bismuth-compile.rb` を実行すると `main.mrb` ファイルが作られる。
+`bismuth.rb` を実行すると `main.rb` が `main.mrb` にコンパイルされたのち、実行される。
 
-`bismuth-run.rb` を実行すると `main.mrb` が実行され、空っぽのウインドウが表示される。
+コンパイルだけしたい場合は `bismuth.rb -c main.rb` とする。
+
+コンパイル済みの `main.mrb` の実行のみしたい場合は `bismuth.rb main.mrb` とする。
 
 `bismuth-build.rb macos` で、実行ファイル `tmp/macOS/game.app` が作られる。
