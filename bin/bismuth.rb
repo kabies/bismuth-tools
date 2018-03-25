@@ -1,8 +1,15 @@
 #!/usr/bin/env mruby
 
 #
-# example:
-#   BISMUTH_LOAD_PATH=/path/to/bismuth foo/bar.rb
+# require environment variable BISMUTH_LOAD_PATH:
+#   export BISMUTH_LOAD_PATH=/path/to/bismuth
+#
+# compile and run: bismuth.rb foobar.rb
+# compile only:    bismuth.rb -c foobar.rb
+# run only:        bismuth.rb foobar.mrb
+#
+# default compile target is "main.rb".
+# default run target is "main.mrb".
 #
 
 class BismuthCompile
@@ -131,31 +138,9 @@ class Dotenv # pseudo Dotenv
   end
 end
 
-Dotenv.load
+def compile(file)
+  return file unless file.end_with? ".rb"
 
-#
-# Choose file
-#
-file = ARGV[0]
-if file.to_s.empty?
-  if File.exists? "main.mrb"
-    file = "main.mrb"
-  elsif File.exists? "main.rb"
-    file = "main.rb"
-  end
-end
-
-if file.to_s.empty?
-  STDERR.puts "file not specified"
-  exit 1
-end
-
-puts "#{Time.now} start #{file}..."
-
-#
-# Compile
-#
-if file.end_with? ".rb"
   puts "#{Time.now} compile #{file}"
   load_path = %w(./ src) + ENV['BISMUTH_LOAD_PATH'].split(':')
 
@@ -174,27 +159,69 @@ if file.end_with? ".rb"
     exit 1
   end
 
-  file = "main.mrb"
+  "main.mrb"
 end
 
-#
-# Run
-#
-puts "#{Time.now} run #{file}"
-error_logs = []
-IO.pipe do |r, w|
-  IO.popen("mruby -b #{file}", "r", err: w) do |i|
-    loop do
-      STDOUT.write i.readline
+def run(file)
+  return file unless file.end_with? ".mrb"
+
+  puts "#{Time.now} run #{file}"
+  error_logs = []
+  IO.pipe do |r, w|
+    IO.popen("mruby -b #{file}", "r", err: w) do |i|
+      loop do
+        STDOUT.write i.readline
+      end
+    rescue EOFError => e
+      # done
     end
-  rescue EOFError => e
-    # done
+    w.close
+    r.each_line{|l|
+      error_logs << l
+    }
   end
-  w.close
-  r.each_line{|l|
-    error_logs << l
-  }
+
+  r = Restorer.new
+  error_logs.each{|l| r.restore l }
 end
 
-r = Restorer.new
-error_logs.each{|l| r.restore l }
+if $0 == __FILE__
+  Dotenv.load
+
+  #
+  # parse options
+  #
+  opts = {}
+  if ARGV.include? "-c"
+    ARGV.delete "-c"
+    opts[:c] = true
+  end
+
+  #
+  # Choose file
+  #
+  file = ARGV[-1]
+  if file.to_s.empty?
+    if File.exists? "main.rb"
+      file = "main.rb"
+    elsif File.exists? "main.mrb"
+      file = "main.mrb"
+    end
+  end
+
+  if file.to_s.empty?
+    STDERR.puts "file not specified"
+    exit 1
+  end
+
+  if opts[:c]
+    if file.end_with? ".rb"
+      compile file
+    else
+      puts ".rb file not specified."
+      exit 1
+    end
+  else
+    run compile file
+  end
+end
