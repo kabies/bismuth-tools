@@ -42,6 +42,13 @@ MRuby::Build.new do |conf|
     g.cc.include_paths << "#{ENV['FRAMEWORKS_PATH']}/SDL2_image.framework/Headers/"
   end
 
+  conf.gem github:'mruby-sdl2/mruby-sdl2-screenshot' do |g|
+    if ENV['FRAMEWORKS_PATH']
+      g.cc.flags << "-F#{ENV['FRAMEWORKS_PATH']} -framework SDL2"
+      g.cc.include_paths << "#{ENV['FRAMEWORKS_PATH']}/SDL2.framework/Headers/"
+    end
+  end
+
   # conf.gem github: 'mruby-sdl2/mruby-sdl2-cocoa'
 
   conf.gem github: 'kabies/mruby-stable-sort'
