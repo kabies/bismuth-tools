@@ -1,30 +1,29 @@
 #!/usr/bin/env mruby
-FourCC = "CNBR"
+FourCC = "BIAR"
 VERSION = 1
 
 class Unarchiver
   def initialize(archivename)
     File.open(archivename, "r"){|archive|
-      four_cc = archive.read(4)
-      version = archive.read(4).unpack("V").first
+      four_cc = archive.sysread(4)
+      version = archive.sysread(4).unpack("V").first
       if four_cc != FourCC or version != 1
         raise "version error: #{four_cc} #{version}"
       end
-      @list_size = archive.read(4).unpack("V").first
+      @list_size = archive.sysread(4).unpack("V").first
       # puts "list size #{@list_size}"
       @file_addresses = {}
       @data_start = 4 + 4 + 4 # four_cc + version + list_size
       @list_size.times do
-        size, file_start, filename_length = archive.read(4*3).unpack("VVV")
-        # p [size, file_start, filename_length]
-        filename = archive.read(filename_length)
+        tmp = archive.sysread(4*3)
+        @data_start += 4*3
+        # p [:data_start, @data_start, :archive_tell, archive.pos]
+        size, file_start, filename_length = tmp.unpack("VVV")
+        filename = archive.sysread(filename_length)
+        # p [size, file_start, filename_length, filename.length, filename[0..30]]
         @file_addresses[filename] = [file_start,size]
-        @data_start += 4*3 + filename_length
+        @data_start += filename_length
       end
-
-      # XXX: mruby-io incorrect tell...
-      # @data_start = archive.tell
-      # puts "tell:#{archive.tell} data start at #{@data_start}"
 
       @files = {}
       @file_addresses.each{|name,address|
@@ -32,8 +31,8 @@ class Unarchiver
         size = address.last
         pos = (@data_start+start).to_i
         archive.seek( pos, 0)
-        p [pos, archive.tell]
-        @files[name] = archive.read size
+        # p [pos, archive.tell]
+        @files[name] = archive.sysread size
       }
     }
   end
