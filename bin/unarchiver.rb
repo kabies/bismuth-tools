@@ -32,10 +32,17 @@ class Unarchiver
       }
     }
   end
+
   def files()
     @file_addresses
   end
+
   def write(filename)
+    dir = File.dirname filename
+    unless File.exist?(dir) and File.directory?(dir)
+      puts "mkdir #{dir}"
+      `mkdir -p #{dir}`
+    end
     File.open(filename,"w"){|f|
       puts @files[filename].length
       puts f.write @files[filename]
