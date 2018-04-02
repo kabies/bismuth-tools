@@ -11,18 +11,15 @@ class Unarchiver
         raise "version error: #{four_cc} #{version}"
       end
       @list_size = archive.sysread(4).unpack("V").first
-      # puts "list size #{@list_size}"
       @file_addresses = {}
       @data_start = 4 + 4 + 4 # four_cc + version + list_size
       @list_size.times do
         tmp = archive.sysread(4*3)
         @data_start += 4*3
-        # p [:data_start, @data_start, :archive_tell, archive.pos]
         size, file_start, filename_length = tmp.unpack("VVV")
         filename = archive.sysread(filename_length)
-        # p [size, file_start, filename_length, filename.length, filename[0..30]]
-        @file_addresses[filename] = [file_start,size]
         @data_start += filename_length
+        @file_addresses[filename] = [file_start,size]
       end
 
       @files = {}
@@ -31,7 +28,6 @@ class Unarchiver
         size = address.last
         pos = (@data_start+start).to_i
         archive.seek( pos, 0)
-        # p [pos, archive.tell]
         @files[name] = archive.sysread size
       }
     }
