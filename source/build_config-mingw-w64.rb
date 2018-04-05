@@ -18,36 +18,30 @@ MRuby::CrossBuild.new("i686-w64-mingw32") do |conf|
 
   conf.gem github: 'mruby-sdl2/mruby-sdl2' do |g|
     g.cc.flags << "`#{SDL2_CONFIG} --cflags`"
-    g.linker.flags_before_libraries << "`#{SDL2_CONFIG} --libs`"
   end
 
   conf.gem github: 'mruby-sdl2/mruby-sdl2-mixer' do |g|
     g.cc.flags << "`#{SDL2_CONFIG} --cflags`"
-    g.linker.flags_before_libraries << "`#{SDL2_CONFIG} --libs`"
-    g.linker.libraries << 'SDL2_mixer'
   end
 
   conf.gem github: 'mruby-sdl2/mruby-sdl2-ttf' do |g|
     g.cc.flags << "`#{SDL2_CONFIG} --cflags`"
-    g.linker.flags_before_libraries << "`#{SDL2_CONFIG} --libs`"
-    g.linker.libraries << 'SDL2_ttf'
   end
 
   conf.gem github: 'mruby-sdl2/mruby-sdl2-image' do |g|
     g.cc.flags << "`#{SDL2_CONFIG} --cflags`"
-    g.linker.flags_before_libraries << "`#{SDL2_CONFIG} --libs`"
-    g.linker.libraries << 'SDL2_image'
   end
 
   conf.gem github: 'mruby-sdl2/mruby-sdl2-partial-rwops' do |g|
     g.cc.flags << "`#{SDL2_CONFIG} --cflags`"
-    g.linker.flags_before_libraries << "`#{SDL2_CONFIG} --libs`"
-    g.linker.libraries += %w(SDL2_mixer SDL2_image)
   end
 
   conf.gem github: 'mruby-sdl2/mruby-sdl2-scene-graph' do |g|
     g.cc.flags << "`#{SDL2_CONFIG} --cflags`"
-    g.linker.flags_before_libraries << "`#{SDL2_CONFIG} --libs`"
+  end
+
+  conf.gem github:'mruby-sdl2/mruby-sdl2-screenshot' do |g|
+    g.cc.flags << "`#{SDL2_CONFIG} --cflags`"
   end
 
   conf.gem github: 'kabies/mruby-stable-sort'
@@ -82,6 +76,8 @@ MRuby::CrossBuild.new("i686-w64-mingw32") do |conf|
 
   conf.linker do |linker|
     linker.command = "#{conf.host_target}-gcc"
+    linker.flags_before_libraries << "`#{SDL2_CONFIG} --libs`"
+    linker.libraries += %w(SDL2_mixer SDL2_image SDL2_ttf)
   end
 
 end
