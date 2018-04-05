@@ -56,7 +56,11 @@ def build_mingw_w64
   `cp #{BISMUTH_TOOLS_PATH}/build/mingw-w64/build/#{target}/bin/mruby.exe #{sysdir}`
   `cp #{CROSS_TOOLS_PATH}/#{target}/bin/*.dll #{sysdir}`
   `cp main.mrb #{sysdir}`
-  `cp -R assets #{sysdir}`
+  if File.exist? "assets.biar"
+    `cp -R assets.biar #{sysdir}`
+  else
+    `cp -R assets #{sysdir}`
+  end
 end
 
 def build_macos
@@ -105,13 +109,10 @@ def build_macos
     }
     `iconutil -c icns tmp/macOS/icon.iconset`
   end
-
   `cp -R tmp/macOS/icon.icns #{dir}/Contents/Resources/AppIcon.icns`
-  # resources
+
+  # mruby and frameworks
   `cp -R #{BISMUTH_TOOLS_PATH}/build/macos/build/host/bin/mruby #{dir}/Contents/MacOS/mruby`
-  `cp -R assets #{dir}/Contents/Resources`
-  `cp main.mrb #{dir}/Contents/Resources`
-  # Frameworks
   [
     'SDL2',
     'SDL2_image',
@@ -126,6 +127,14 @@ def build_macos
     `install_name_tool -change #{original_path} #{bundled_path} #{dir}/Contents/MacOS/mruby`
   }
   puts `otool -L #{dir}/Contents/MacOS/mruby`
+
+  # main code and assets
+  `cp main.mrb #{dir}/Contents/Resources/`
+  if File.exist? "assets.biar"
+    `cp -R assets.biar #{dir}/Contents/Resources/`
+  else
+    `cp -R assets #{dir}/Contents/Resources/`
+  end
 end
 
 if $0==__FILE__
