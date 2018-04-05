@@ -22,10 +22,10 @@ sudo apt-get install build-essential bison ruby libsdl2-dev libsdl2-image-dev li
 `.env` ファイルに、以下のように環境変数を指定する。
 
 ```
-# for bismuth-build
+# for bismuth-build.rb
 BISMUTH_TOOLS_PATH=/path/to/bismuth-tools
 
-# for bismuth-compile
+# for bismuth.rb
 BISMUTH_LOAD_PATH=/path/to/bismuth
 ```
 

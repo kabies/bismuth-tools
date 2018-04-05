@@ -25,11 +25,11 @@ SDLのmacOS向けフレームワークを以下から入手し、 `~/Library/Fra
 `.env` ファイルに、以下のように環境変数を指定する。
 
 ```
-# for bismuth-build
+# for bismuth-build.rb
 BISMUTH_TOOLS_PATH=/path/to/bismuth-tools
 FRAMEWORKS_PATH=/Users/USER_NAME/Library/Frameworks
 
-# for bismuth-compile
+# for bismuth.rb
 BISMUTH_LOAD_PATH=/path/to/bismuth
 ```
 
