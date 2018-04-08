@@ -10,6 +10,7 @@ MRuby::Build.new do |conf|
   conf.gem github: 'mruby-sdl2/mruby-sdl2-scene-graph'
 
   conf.gem github: 'kabies/mruby-stable-sort'
+  conf.gem github: 'kabies/mruby-cellular-automaton'
 
   # conf.gem :github => 'AndrewBelt/mruby-yaml' # incompatible for crosscompile
   # conf.gem :mgem => 'mruby-yaml' # incompatible 1.4.0

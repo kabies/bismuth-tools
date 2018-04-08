@@ -45,6 +45,7 @@ MRuby::CrossBuild.new("i686-w64-mingw32") do |conf|
   end
 
   conf.gem github: 'kabies/mruby-stable-sort'
+  conf.gem github: 'kabies/mruby-cellular-automaton'
 
   # conf.gem :github => 'AndrewBelt/mruby-yaml' # incompatible for crosscompile
   # conf.gem :mgem => 'mruby-yaml' # incompatible 1.4.0

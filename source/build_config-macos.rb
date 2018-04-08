@@ -53,7 +53,7 @@ MRuby::Build.new do |conf|
   # conf.gem github: 'mruby-sdl2/mruby-sdl2-cocoa'
 
   conf.gem github: 'kabies/mruby-stable-sort'
-  # conf.gem github: 'kabies/mruby-simple-cellular-automaton'
+  conf.gem github: 'kabies/mruby-cellular-automaton'
 
   conf.gem :mgem => 'mruby-singleton'
   conf.gem :github => 'matsumoto-r/mruby-sleep'
