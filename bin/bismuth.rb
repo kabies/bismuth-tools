@@ -7,6 +7,7 @@
 # compile and run: bismuth.rb foobar.rb
 # compile only:    bismuth.rb -c foobar.rb
 # run only:        bismuth.rb foobar.mrb
+# run with args:   bismuth.rb foobar.mrb foo bar
 #
 # default compile target is "main.rb".
 # default run target is "main.mrb".
@@ -162,13 +163,14 @@ def compile(file)
   "main.mrb"
 end
 
-def run(file)
+def run(file,args)
   return file unless file.end_with? ".mrb"
 
   puts "#{Time.now} run #{file}"
   error_logs = []
   IO.pipe do |r, w|
-    IO.popen("mruby -b #{file}", "r", err: w) do |i|
+    args = args ? args.join(" ") : ""
+    IO.popen("mruby -b #{file} #{args}", "r", err: w) do |i|
       loop do
         STDOUT.write i.readline
       end
@@ -200,8 +202,8 @@ if $0 == __FILE__
   #
   # Choose file
   #
-  file = ARGV[-1]
-  if file.to_s.empty?
+  file = ARGV.first.to_s
+  if file.empty?
     if File.exists? "main.rb"
       file = "main.rb"
     elsif File.exists? "main.mrb"
@@ -222,6 +224,6 @@ if $0 == __FILE__
       exit 1
     end
   else
-    run compile file
+    run compile(file), ARGV[1..-1]
   end
 end
