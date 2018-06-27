@@ -8,7 +8,7 @@ FRAMEWORKS_PATH="$HOME/Library/Frameworks"
 echo "MRUBY_CONFIG=$MRUBY_CONFIG"
 
 mkdir -p "build"
-git clone -b 1.4.0 $REPOSITORY $DIR
+git clone -b 1.4.1 $REPOSITORY $DIR
 
 cd $DIR
 env FRAMEWORKS_PATH=$FRAMEWORKS_PATH MRUBY_CONFIG=$MRUBY_CONFIG ruby minirake -v all

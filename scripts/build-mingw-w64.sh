@@ -10,7 +10,7 @@ echo "MRUBY_CONFIG=$MRUBY_CONFIG"
 echo "MACHTYPE=$MACHTYPE"
 
 mkdir -p "build"
-git clone -b 1.4.0 $REPOSITORY $DIR
+git clone -b 1.4.1 $REPOSITORY $DIR
 
 cd $DIR
 env MACHTYPE=$MACHTYPE CROSS_TOOLS_PATH=$CROSS_TOOLS_PATH MRUBY_CONFIG=$MRUBY_CONFIG ruby minirake -v all
